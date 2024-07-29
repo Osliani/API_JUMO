@@ -48,3 +48,12 @@ def get_thread(user_id):
         return thread["thread_id"]
     
     return None
+
+
+def get_interactions(user_id):
+    thread = threads_collection.find_one({"user_id": user_id})
+    if thread:
+        interactions = int(thread["interactions"])
+        return interactions
+    
+    return 0

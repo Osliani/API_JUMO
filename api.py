@@ -12,7 +12,14 @@ def crear_app():
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     openai_client = OpenAI(api_key=OPENAI_API_KEY)
     ASSISTANT_ID = os.getenv("ASSISTANT_ID")
-    WORDS_LIMIT = 1599
+    
+    
+    @app.before_request
+    def restrict_domains():
+        host = request.headers.get('Host')
+        if not host.startswith('jumotech.com'):
+            return jsonify({'error': 'Acceso denegado','message': 'El dominio no es válido', 'status_code': 403})
+            
 
     @app.route('/chat', methods=['POST'])
     def chat_reply():
@@ -32,10 +39,9 @@ def crear_app():
             thread_id = mongo.create_thread(user_id)
             ans = utils.submit_message(incoming_msg, thread_id, ASSISTANT_ID)
         
-        if len(ans) > WORDS_LIMIT:
-            ans = ans[:WORDS_LIMIT]
+        interactions = mongo.get_interactions(user_id)
         
-        return jsonify({'message': ans})
+        return jsonify({'message': ans, 'status_code': 200, 'interactions': interactions})
         
     return app
 
