@@ -14,17 +14,10 @@ def crear_app():
     ASSISTANT_ID = os.getenv("ASSISTANT_ID")
     
     
-    @app.before_request
-    def restrict_domains():
-        host = request.headers.get('Host')
-        if not host.startswith('jumotech.com'):
-            return jsonify({'error': 'Acceso denegado','message': 'El dominio no es válido', 'status_code': 403})
-            
-
     @app.route('/chat', methods=['POST'])
     def chat_reply():
-        user_id = request.values.get('id').strip()
-        incoming_msg = request.values.get('message', '').strip()
+        user_id = str(request.values.get('id')).strip()
+        incoming_msg = str(request.values.get('message')).strip()
         thread_id = mongo.get_thread(user_id)
         if not thread_id:
             thread_id = mongo.create_thread(user_id)
@@ -47,4 +40,4 @@ def crear_app():
 
 if __name__ == '__main__':
     app = crear_app()
-    app.run(debug=True, host='0.0.0.0', port=3028)
+    app.run(debug=True, host='jumotech.com', port=3028)
