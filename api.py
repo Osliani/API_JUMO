@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 from openai import OpenAI
 from dotenv import load_dotenv
 import utils, mongo, os
@@ -12,6 +12,14 @@ def crear_app():
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     openai_client = OpenAI(api_key=OPENAI_API_KEY)
     ASSISTANT_ID = os.getenv("ASSISTANT_ID")
+    
+    
+    @app.before_request
+    def before_request():
+        token = request.headers.get('token')
+        if token != os.getenv("TOKEN_API"):
+            print("Token inválido.")
+            abort(401)
     
     
     @app.route('/chat', methods=['POST'])
@@ -38,6 +46,7 @@ def crear_app():
         
     return app
 
+
 if __name__ == '__main__':
     app = crear_app()
-    app.run(debug=True, host='jumotech.com', port=3028)
+    app.run(debug=True, host='0.0.0.0', port=3028)
