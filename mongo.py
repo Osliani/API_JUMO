@@ -31,15 +31,32 @@ def update_thread(user_id, thread_id):
         upsert=True
     )
     
+    
+def update_chat(user_id, role, message):
+    new_message = {
+        "role": role,
+        "message": message,
+    }
+    threads_collection.update_one(
+        {"user_id": user_id},
+        {"$push": {"messages": new_message}},
+        upsert=True
+    )
+    
+
+def get_chat(user_id):
+    thread = threads_collection.find_one({"user_id": user_id})
+    if thread:
+        chat = thread['messages']
+        return chat
+    
+    return None
+    
 
 def get_thread(user_id):
     thread = threads_collection.find_one({"user_id": user_id})
     if thread:
         interactions = int(thread["interactions"])
-        if interactions >= 10:
-            print("Historial reseteado por cantidad de interacciones.")
-            return create_thread(user_id)
-        
         threads_collection.update_one(
             {"user_id": user_id},
             {"$set": {"interactions": interactions + 1}},

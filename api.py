@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify, abort
-from openai import OpenAI
 from dotenv import load_dotenv
 import utils, mongo, os
 
@@ -8,9 +7,6 @@ load_dotenv()
 def crear_app():
     app = Flask(__name__)
     app.secret_key = os.urandom(24)
-    
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-    openai_client = OpenAI(api_key=OPENAI_API_KEY)
     ASSISTANT_ID = os.getenv("ASSISTANT_ID")
     
     
@@ -32,16 +28,20 @@ def crear_app():
 
         print("Mensaje Recibido!")
         print(f"- User: {incoming_msg}")
+        mongo.update_chat(user_id, "User", incoming_msg)
         
         try:
-            ans = utils.submit_message(incoming_msg, thread_id, ASSISTANT_ID)
+            ans = utils.submit_message(incoming_msg, thread_id, ASSISTANT_ID, user_id)
         except Exception as error:
-            print(f"Historial reseteado por el siguiente error: {error}")
+            print(f"Error: {error}")
             thread_id = mongo.create_thread(user_id)
-            ans = utils.submit_message(incoming_msg, thread_id, ASSISTANT_ID)
+            print(f"Historial Reseteado.")
+            ans = utils.submit_message(incoming_msg, thread_id, ASSISTANT_ID, user_id)
         
+        print("Respuesta Enviada!")
+        print(ans)
+        mongo.update_chat(user_id, "Assistant", ans)
         interactions = mongo.get_interactions(user_id)
-        
         return jsonify({'message': ans, 'status_code': 200, 'interactions': interactions})
         
     return app
