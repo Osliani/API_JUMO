@@ -55,7 +55,7 @@ def get_response(thread_id, message_object):
     return ans
 
 
-def create_lead(user_id, name, email):
+def resume_chat(user_id):
     chats = mongo.get_chat(user_id)
     history = ""
     for chat in chats:
@@ -64,17 +64,18 @@ def create_lead(user_id, name, email):
         
     thread = client.beta.threads.create()
     message_object = add_message(history, thread.id)
-    run = add_assistant("asst_trp797MviSqDRC1nxAGYVqXn", thread.id)
+    RESUME_ASSISTANT_ID = os.getenv('RESUME_ASSISTANT_ID')
+    run = add_assistant(RESUME_ASSISTANT_ID, thread.id)
     run = wait_on_run(run, thread.id)
     resume_history = get_response(thread.id, message_object)
-    print(resume_history)
+    return resume_history
     
-    return "El equipo de ventas se pondrá en contacto contigo proximamente."
     
-    """ lead_details = {
+def create_lead(name, email, resume):
+    lead_details = {
         "name": name,
         "email": email,
-        "message": resume_history,
+        "message": resume,
     }
     
     token = get_oauth_token()
@@ -106,7 +107,9 @@ def create_lead(user_id, name, email):
         print(data)
         return "El equipo de ventas se pondrá en contacto contigo proximamente."
     else:
-        raise Exception(f"Error: {response.status_code}") """
+        raise Exception(f"Error: {response.status_code}")
+    
+    
         
     
 def submit_message(message:str, thread_id, assistant_id, user_id):
@@ -127,8 +130,10 @@ def submit_message(message:str, thread_id, assistant_id, user_id):
         
         tool_ans = ""
         if function_name == "create_lead":
-            tool_ans = create_lead(user_id, **arguments)
-        
+            resume = resume_chat(user_id)
+            print(f"Resumen: {resume}")
+            tool_ans = create_lead(**arguments, resume=resume)
+            #tool_ans = "El equipo de ventas se pondrá en contacto contigo proximamente."
         
         #enviar la respuesta de la tool
         try:
@@ -143,7 +148,6 @@ def submit_message(message:str, thread_id, assistant_id, user_id):
             print("Tool outputs submitted successfully.")
         except Exception as e:
             print("Failed to submit tool outputs:", e)
-        
         
         #generar la respuesta del modelo
         run = wait_on_run(run, thread_id)

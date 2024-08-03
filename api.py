@@ -7,7 +7,7 @@ load_dotenv()
 def crear_app():
     app = Flask(__name__)
     app.secret_key = os.urandom(24)
-    ASSISTANT_ID = os.getenv("ASSISTANT_ID")
+    JUMO_ASSISTANT_ID = os.getenv("JUMO_ASSISTANT_ID")
     
     
     @app.before_request
@@ -31,12 +31,12 @@ def crear_app():
         mongo.update_chat(user_id, "User", incoming_msg)
         
         try:
-            ans = utils.submit_message(incoming_msg, thread_id, ASSISTANT_ID, user_id)
+            ans = utils.submit_message(incoming_msg, thread_id, JUMO_ASSISTANT_ID, user_id)
         except Exception as error:
             print(f"Error: {error}")
             thread_id = mongo.create_thread(user_id)
             print(f"Historial Reseteado.")
-            ans = utils.submit_message(incoming_msg, thread_id, ASSISTANT_ID, user_id)
+            ans = utils.submit_message(incoming_msg, thread_id, JUMO_ASSISTANT_ID, user_id)
         
         print("Respuesta Enviada!")
         print(ans)

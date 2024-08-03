@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 from getToken import *
 from utils import *
-from datetime import datetime, timedelta
 
 function_json = {
     "name": "create_lead",
@@ -23,10 +22,10 @@ function_json = {
 }
 
 load_dotenv()
-ASSISTANT_ID = os.getenv("ASSISTANT_ID")
+JUMO_ASSISTANT_ID = os.getenv("JUMO_ASSISTANT_ID")
 
 assistant = client.beta.assistants.update(
-    ASSISTANT_ID,
+    JUMO_ASSISTANT_ID,
     tools=[
         {"type": "function", "function": function_json},
     ],
