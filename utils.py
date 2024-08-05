@@ -73,7 +73,7 @@ def resume_chat(user_id):
     
 def create_lead(name, email, resume):
     lead_details = {
-        "name": name,
+        "name": f"Jumoweb - {name}",
         "email": email,
         "message": resume,
     }
