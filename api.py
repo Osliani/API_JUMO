@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, abort
+from flask_cors import CORS
 from dotenv import load_dotenv
 import utils, mongo, os
 
@@ -6,6 +7,7 @@ load_dotenv()
 
 def crear_app():
     app = Flask(__name__)
+    CORS(app)
     app.secret_key = os.urandom(24)
     JUMO_ASSISTANT_ID = os.getenv("JUMO_ASSISTANT_ID")
     
