@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, abort
 from flask_cors import CORS
 from dotenv import load_dotenv
 import utils, mongo, os
+from waitress import serve
 
 load_dotenv()
 
@@ -51,4 +52,5 @@ def crear_app():
 
 if __name__ == '__main__':
     app = crear_app()
-    app.run(debug=True, host='0.0.0.0', port=3028)
+    #app.run(debug=True, host='0.0.0.0', port=3028)
+    serve(app, host='0.0.0.0', port=3028)
